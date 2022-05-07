@@ -1,0 +1,11 @@
+{
+  "targets": {
+    "tnpsc-436e3": {
+      "hosting": {
+        "dynamicTable": [
+          "tnpsc-436e3"
+        ]
+      }
+    }
+  }
+}

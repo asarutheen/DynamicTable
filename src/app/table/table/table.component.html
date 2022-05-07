@@ -1,0 +1,167 @@
+<ng-container *ngIf="tableName == 'dataTable'">
+<div class="search-div">
+    <button mat-raised-button (click)="onCreate()">
+        <mat-icon>add</mat-icon>Create
+    </button>
+    <mat-form-field class="search-form-field">
+        <input matInput [(ngModel)]="searchKey" placeholder="Search" floatLable="never" autocomplete="off" (keyup)="applyFilter()">
+        <button mat-button matSuffix mat-icon-button aria-label="Clear" *ngIf="searchKey" (click)="onSearchClear()">
+            <mat-icon>close</mat-icon>
+        </button>
+    </mat-form-field> 
+</div>
+
+<div class="example-container mat-elevation-28">
+    <mat-table [dataSource]="dataList" matSort >
+            <ng-container *ngFor="let col of columnName; let i = index" matColumnDef="{{ col.header_name }}">
+                <mat-header-cell *matHeaderCellDef mat-sort-header> {{ col.header_name }} </mat-header-cell>
+                <ng-container *ngIf=" col.header_name  != 'Actions' && col.header_name  != 'Action' && col.type == 'default' ">
+                    <mat-cell *matCellDef="let element"> {{element[col.template_name]}}</mat-cell>
+                </ng-container>
+                <ng-container *ngIf=" col.header_name  != 'Action' && col.type == 'input' ">
+                    <mat-cell *matCellDef="let element">  
+                         <mat-form-field class="example-full-width" appearance="standard">
+                            <input matInput placeholder="Ex. Pizza" value="{{element[col.template_name]}}">
+                         </mat-form-field>
+                    </mat-cell>
+                </ng-container>
+                <ng-container *ngIf=" col.header_name  == 'Action'">
+                    <mat-cell *matCellDef="let row; let i1 = index"> 
+                        <ng-container *ngFor="let but of col.actionsConfig">
+                            <button mat-icon-button color="{{but.color}}" (click)="actionClickEmployee(but.iconName ,row, i1)"><mat-icon>{{but.iconName}}</mat-icon></button>
+                        </ng-container>
+                    </mat-cell>
+                </ng-container>
+                <ng-container *ngIf=" col.header_name  == 'Actions'">
+                    <mat-cell *matCellDef="let row">
+                        <ng-container *ngFor="let but of col.actionsConfig">
+                            <button mat-icon-button (click)="actionClickEmployee(but.iconName ,row, i)"><mat-icon>launch</mat-icon></button>
+                        </ng-container>
+                    </mat-cell>
+                </ng-container>
+            </ng-container> 
+
+
+      
+        <ng-container matColumnDef="loading">
+            <mat-footer-cell *matFooterCellDef colspan="6">
+                Loading Data...
+            </mat-footer-cell>
+        </ng-container>
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+        <mat-footer-row *matFooterRowDef="['loading']" [ngClass]="{'hide': dataList!=null}"></mat-footer-row>
+    </mat-table>
+        <mat-paginator [ngClass]="{'hide': tableConfig.isPagination!=true}" [pageSizeOptions]="tableConfig.pageSizeOptions" [pageSize]="tableConfig.pageSize" showFirstLastButtons></mat-paginator>
+</div>
+</ng-container>
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<ng-container *ngIf="tableName == 'inline'">
+<button mat-raised-button (click)="onCreateFormArray()">
+    <mat-icon>add</mat-icon>Create
+</button>
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+              <th scope="col" *ngFor="let item of columnName">{{item.header_name}}</th>
+            </tr>
+        </thead>
+        <tbody>     
+            <tr>
+                <td *ngFor="let item of columnName; let i = index">
+                    <form  [formGroup]="fg" *ngFor="let fg of bankService.bankAccountForms.controls; let i1=index;"
+                      style="margin-bottom: 10px;">
+                        <div *ngIf="item.header_name!= 'Actions'">
+                            <mat-form-field>
+                                <input class="form-control" matInput formControlName="{{item.template_name}}" placeholder="Hel">
+                                <mat-error>
+                                    <ng-container *ngFor="let errorData of item.error">
+                                        <ng-container *ngIf="fg.get([item.template_name])?.hasError([errorData.errorType])">{{errorData.errorMSG}}</ng-container>
+                                    </ng-container>
+                                </mat-error>     
+                            </mat-form-field>
+                        </div>
+                        <div *ngIf="item.header_name== 'Actions'">
+                            <ng-container *ngFor="let but of item.actionsConfig">
+                                <button type="{{but.type}}" [disabled]="fg.invalid && but.buttonName == 'Submit'" 
+                                (click)="actionClick(but.buttonName, fg, i)"
+                                class="btn btn-success" style="margin-right: 5px;">
+                                    {{ but.buttonName == 'Submit' && fg.get('id').value == 0 ? but.buttonName :
+                                    but.buttonName == 'Submit' ? 'Update' : but.buttonName }}
+                                </button>
+                            </ng-container>
+                        </div>
+                     </form>
+                 </td>
+             </tr>
+        </tbody>
+    </table> 
+  </div>
+</ng-container>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <!-- <ng-container matColumnDef="fullName">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> Full Name </mat-header-cell>
+            <mat-cell *matCellDef="let element"> {{element.fullName}} </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="email">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> Email </mat-header-cell>
+            <mat-cell *matCellDef="let element"> {{element.email}} </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="mobile">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> Mobile </mat-header-cell>
+            <mat-cell *matCellDef="let element"> {{element.mobile}} </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="city">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> City </mat-header-cell>
+            <mat-cell *matCellDef="let element"> {{element.city}} </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="date">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> Date </mat-header-cell>
+            <mat-cell *matCellDef="let element"> {{element.hireDate}} </mat-cell>
+        </ng-container> -->
+        <!-- <ng-container matColumnDef="action">
+            <mat-header-cell *matHeaderCellDef></mat-header-cell>
+            <mat-cell *matCellDef="let row">
+                <button mat-icon-button (click)="onUpdate(row)"><mat-icon>launch</mat-icon></button>
+                <button mat-icon-button color="warn" (click)="delete(row)"><mat-icon>delete_outline</mat-icon></button>
+            </mat-cell>
+        </ng-container> -->
+
+
+
+
+
+
+                                        <!-- <mat-error *ngIf="fg.controls[item.template_name].errors?.required">Invalid</mat-error>
+                                <mat-error *ngIf="fg.controls[item.template_name].errors?.min">minimum</mat-error>
+                                <mat-error *ngIf="fg.controls[item.template_name].errors?.minlength">length</mat-error> -->
